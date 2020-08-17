@@ -29,6 +29,9 @@
 import config as cf
 import sys
 import csv
+from Sorting import mergesort as srt
+from DataStructures import listiterator as it
+from ADT import list as slt
 from time import process_time 
 
 def loadCSVFile (file, lst, sep=";"):
@@ -71,9 +74,10 @@ def printMenu():
     print("1- Cargar Datos de Películas")
     print("2- Cargar Datos de Casting")
     print("3- Encontrar películas buenas")
-    print("3- Contar los elementos de la Lista")
-    print("4- Contar elementos filtrados por palabra clave")
-    print("5- Consultar elementos a partir de dos listas")
+    print("4- Crear ranking películas")
+    print("5- Contar los elementos de la Lista")
+    print("6- Contar elementos filtrados por palabra clave")
+    print("7- Consultar elementos a partir de dos listas")
     print("0- Salir")
 
 def countElementsFilteredByColumn(criteria, column, lst):
@@ -121,13 +125,43 @@ def searchGoodMovies(movies,casting):
                 dictretorno[director]=[1,0]
                 dictretorno[director][1]=float(movies[x]["vote_average"])
     return dictretorno
-            
+def ordenarAverageAsc(mov1:dict,mov2:dict)->bool:
+    if float(mov1['vote_average'])>float(mov2['vote_average']):
+        return True
+    return False
+def ordenarAverageDesc(mov1:dict,mov2:dict)->bool:
+    if float(mov1['vote_average'])<float(mov2['vote_average']):
+        return True
+    return False
+def ordenarCountAsc(mov1:dict,mov2:dict)->bool:
+    if float(mov1['vote_count'])>float(mov2['vote_count']):
+        return True
+    return False
+def ordenarCountDesc(mov1:dict,mov2:dict)->bool:
+    if float(mov1['vote_count'])<float(mov2['vote_count']):
+        return True
+    return False
 
+def createRankingMovies(listamovies:list,movies:int,orden:bool,countoaverage:bool)->list:
+    listaretorno=[]
+    listmovies=slt.newList('SINGLE_LINKED')
+    if countoaverage:#Count=True Average=False B)
+        if orden:#Asc=True, Desc=False B)
+            srt.mergesort(listmovies,ordenarCountAsc)
+        else:
+            srt.mergesort(listmovies,ordenarCountDesc)
+    else:
+        if orden:
+            srt.mergesort(listmovies,ordenarAverageAsc)
+        else:
+            srt.mergesort(listmovies,ordenarAverageDesc)
+    listaretorno.append(slt.lastElement(listmovies))
+    return listaretorno
 def main():
     """
     Método principal del programa, se encarga de manejar todos los metodos adicionales creados
 
-    Instancia una lista vacia en la cual se guardarán los datos cargados desde el archivo
+    Instancia una lista vacia en la cual se guardarán los datos cargados desde el arivo
     Args: None
     Return: None 
     """
@@ -151,15 +185,38 @@ def main():
                     print("Director: "+each)
                     print("Películas buenas: "+str(goodmovies[each][0]))
                     print("Votos Promedio: "+str(round(goodmovies[each][1]/goodmovies[each][0],2)))
-            elif int(inputs[0])==4: #opcion 2
+            elif int(inputs[0])==4:
+                quantity=int(input("Escriba el tamaño del ranking que desea crear (Mayor o igual a 10): "))
+                while quantity<10:
+                    print("La cantidad debe ser mayor de 10")
+                    quantity=int(input("Escriba el tamaño del ranking que desea crear: "))
+                avgorcount=input("Escriba Average o Count según lo que desee: ").lower()
+                ascordesc=input("Escriba Asc para orden ascendente, o Desc para orden descendente: ").lower()
+                if avgorcount=="count":
+                    if ascordesc=="asc":
+                        ranking=createRankingMovies(listamovies,quantity,True,True)
+                    else:
+                        ranking=createRankingMovies(listamovies,quantity,False,True)
+                else:
+                    if ascordesc=="asc":
+                        ranking=createRankingMovies(listamovies,quantity,True,False)
+                    else:
+                        ranking=createRankingMovies(listamovies,quantity,False,False)
+                for each in ranking:
+                    print("llave")
+                    print(each)
+                    print("clave")
+                    print(ranking[each])
+                    break
+            elif int(inputs[0])==5: #opcion 2
                 if len(lista)==0: #obtener la longitud de la lista
                     print("La lista esta vacía")    
                 else: print("La lista tiene "+str(len(lista))+" elementos")
-            elif int(inputs[0])==5: #opcion 3
+            elif int(inputs[0])==6: #opcion 3
                 criteria =input('Ingrese el criterio de búsqueda\n')
                 counter=countElementsFilteredByColumn(criteria, "nombre", lista) #filtrar una columna por criterio  
                 print("Coinciden ",counter," elementos con el crtierio: ", criteria  )
-            elif int(inputs[0])==6: #opcion 4
+            elif int(inputs[0])==7: #opcion 4
                 criteria =input('Ingrese el criterio de búsqueda\n')
                 counter=countElementsByCriteria(criteria,0,lista)
                 print("Coinciden ",counter," elementos con el crtierio: '", criteria ,"' (en construcción ...)")
