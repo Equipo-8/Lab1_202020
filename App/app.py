@@ -31,6 +31,7 @@ import sys
 import csv
 from Sorting import mergesort as srt
 from DataStructures import listiterator as it
+from DataStructures import linkedlistiterator as lit
 from ADT import list as slt
 from time import process_time 
 
@@ -143,8 +144,10 @@ def ordenarCountDesc(mov1:dict,mov2:dict)->bool:
     return False
 
 def createRankingMovies(listamovies:list,movies:int,orden:bool,countoaverage:bool)->list:
-    listaretorno=[]
     listmovies=slt.newList('SINGLE_LINKED')
+    operador=0
+    for each in listamovies:
+        slt.addFirst(listmovies,each)
     if countoaverage:#Count=True Average=False B)
         if orden:#Asc=True, Desc=False B)
             srt.mergesort(listmovies,ordenarCountAsc)
@@ -155,8 +158,13 @@ def createRankingMovies(listamovies:list,movies:int,orden:bool,countoaverage:boo
             srt.mergesort(listmovies,ordenarAverageAsc)
         else:
             srt.mergesort(listmovies,ordenarAverageDesc)
-    listaretorno.append(slt.lastElement(listmovies))
-    return listaretorno
+    iterador=lit.newIterator(listmovies)
+    moviesiteradas=0
+    retorno=[]
+    while moviesiteradas!=movies:
+        moviesiteradas+=1
+        retorno.append(lit.next(iterador))
+    return retorno
 def main():
     """
     Método principal del programa, se encarga de manejar todos los metodos adicionales creados
@@ -174,11 +182,9 @@ def main():
             if int(inputs[0])==1: #opcion 1
                 loadCSVFile("Data/SmallMoviesDetailsCleaned.csv", listamovies) #llamar funcion cargar datos
                 print("Datos cargados, "+str(len(listamovies))+" elementos cargados")
-                print(type(listamovies))
             elif int(inputs[0])==2:
                 loadCSVFile("Data/MoviesCastingRaw-small.csv",listacasting)
                 print("Datos cargados, "+str(len(listacasting))+" elementos cargados")
-                print(type(listacasting))
             elif int(inputs[0])==3:
                 goodmovies=searchGoodMovies(listamovies,listacasting)
                 for each in goodmovies:
@@ -202,12 +208,7 @@ def main():
                         ranking=createRankingMovies(listamovies,quantity,True,False)
                     else:
                         ranking=createRankingMovies(listamovies,quantity,False,False)
-                for each in ranking:
-                    print("llave")
-                    print(each)
-                    print("clave")
-                    print(ranking[each])
-                    break
+                print(ranking)
             elif int(inputs[0])==5: #opcion 2
                 if len(lista)==0: #obtener la longitud de la lista
                     print("La lista esta vacía")    
